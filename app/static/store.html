@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Store</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+
+.topbar { background: #1a1a2e; color: white; padding: 12px 32px; display: flex; justify-content: space-between; align-items: center; }
+.topbar h1 { font-size: 18px; font-weight: 600; }
+.topbar nav { display: flex; gap: 12px; }
+.topbar a { color: #8888cc; text-decoration: none; font-size: 13px; }
+.topbar a:hover { color: #aaaaff; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+.hero { background: linear-gradient(135deg, #1a1a2e, #2a2a4e); color: white; border-radius: 16px; padding: 48px; margin-bottom: 32px; }
+.hero h2 { font-size: 28px; margin-bottom: 8px; }
+.hero p { color: #aaaacc; font-size: 15px; line-height: 1.6; }
+.hero .badge { display: inline-block; background: #5b5bd6; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
+.hero .links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+.hero .links span { color: #5b5bd6; font-size: 13px; cursor: pointer; text-decoration: underline; }
+
+.search-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+.search-bar input { flex: 1; padding: 10px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+.search-bar input:focus { border-color: #5b5bd6; }
+.search-bar select { padding: 10px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: white; }
+
+.products { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: transform 0.15s, box-shadow 0.15s; cursor: pointer; }
+.product-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.product-img { height: 180px; background: #e8e8f0; display: flex; align-items: center; justify-content: center; color: #8888aa; font-size: 13px; }
+.product-body { padding: 16px; }
+.product-body h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.product-body .vendor { font-size: 12px; color: #888; margin-bottom: 8px; }
+.product-body .price { font-size: 18px; font-weight: 700; color: #2a2a4e; margin-bottom: 4px; }
+.product-body .stock { font-size: 12px; }
+.product-body .stock.available { color: #22c55e; }
+.product-body .stock.low { color: #f59e0b; }
+.product-body .stock.out { color: #ef4444; }
+
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 16px; padding: 32px; max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto; }
+.modal h2 { font-size: 22px; margin-bottom: 8px; }
+.modal .modal-close { float: right; background: none; border: none; font-size: 24px; cursor: pointer; color: #888; }
+.modal .vendor-label { font-size: 13px; color: #888; margin-bottom: 16px; }
+.modal .desc { font-size: 14px; line-height: 1.6; color: #444; margin-bottom: 20px; }
+.modal label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; margin-top: 12px; }
+.modal select, .modal input { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+.modal .order-btn { margin-top: 20px; width: 100%; padding: 12px; background: #1a1a2e; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.modal .order-btn:hover { background: #2a2a4e; }
+.order-confirm { margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; font-size: 14px; display: none; }
+.order-confirm.show { display: block; }
+
+.chat-toggle { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: #5b5bd6; color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(91,91,214,0.4); z-index: 999; }
+.chat-toggle:hover { transform: scale(1.05); }
+.chat-widget { display: none; position: fixed; bottom: 92px; right: 24px; width: 360px; height: 480px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 999; overflow: hidden; flex-direction: column; }
+.chat-widget.open { display: flex; }
+.chat-header { background: #1a1a2e; color: white; padding: 16px; font-size: 14px; font-weight: 600; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.chat-msgs .msg { padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.chat-msgs .msg.user { background: #5b5bd6; color: white; align-self: flex-end; }
+.chat-msgs .msg.bot { background: #f0f0f5; color: #1a1a1a; align-self: flex-start; }
+.chat-msgs .msg.typing { background: transparent; color: #888; align-self: flex-start; font-style: italic; }
+.chat-input { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #eee; }
+.chat-input input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; outline: none; }
+.chat-input button { padding: 8px 16px; background: #5b5bd6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@media (max-width: 768px) {
+  .chat-widget { width: calc(100% - 32px); height: 400px; right: 16px; bottom: 80px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Demo Store</h1>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/store.html">Store</a>
+    <a href="/admin.html">Admin</a>
+  </nav>
+</div>
+<div class="container">
+  <div class="hero">
+    <h2>Welcome to Demo Store</h2>
+    <p>This is a simulated Shopify storefront. Browse products, place test orders, and try the AI support agent. No real purchases are made.</p>
+    <span class="badge">Demo Mode</span>
+    <div class="links">
+      <span onclick="showOrders()">View all orders</span>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Search products..." oninput="renderProducts()">
+    <select id="vendor-filter" onchange="renderProducts()"><option value="">All Vendors</option></select>
+  </div>
+  <div class="products" id="products-grid"></div>
+</div>
+
+<div class="modal-overlay" id="product-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">x</button>
+    <h2 id="modal-title"></h2>
+    <div class="vendor-label" id="modal-vendor"></div>
+    <div class="desc" id="modal-desc"></div>
+    <label for="variant-select">Variant</label>
+    <select id="variant-select"></select>
+    <label>Your Name</label><input id="customer-name" value="Demo Customer">
+    <label>Your Email</label><input id="customer-email" value="demo@example.com">
+    <button class="order-btn" onclick="placeOrder()">Place Order</button>
+    <div class="order-confirm" id="order-confirm"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="orders-modal">
+  <div class="modal" style="max-width:700px">
+    <button class="modal-close" onclick="closeOrders()">x</button>
+    <h2>All Orders</h2>
+    <div id="orders-list" style="margin-top:16px;font-size:14px"></div>
+  </div>
+</div>
+
+<button class="chat-toggle" id="chat-toggle" onclick="toggleChat()">?</button>
+<div class="chat-widget" id="chat-widget">
+  <div class="chat-header">Support Agent</div>
+  <div class="chat-msgs" id="chat-msgs">
+    <div class="msg bot">Hi! Ask me about orders, products, or returns. Try "where is my order #1001?"</div>
+  </div>
+  <div class="chat-input">
+    <input id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+    <button id="chat-send" onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+let allProducts = [], allOrders = [];
+
+async function loadProducts() {
+  const r = await fetch('/store/products');
+  allProducts = (await r.json()).products || [];
+  const sel = document.getElementById('vendor-filter');
+  [...new Set(allProducts.map(p => p.vendor))].sort().forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+  renderProducts();
+}
+async function loadOrders() {
+  const r = await fetch('/store/orders');
+  allOrders = (await r.json()).orders || [];
+}
+function renderProducts() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const v = document.getElementById('vendor-filter').value;
+  document.getElementById('products-grid').innerHTML = allProducts.filter(p => (!v || p.vendor === v) && (!q || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))).map(p => {
+    const prices = p.variants.map(v => parseFloat(v.price));
+    const stock = p.variants.reduce((s, v) => s + v.stock, 0);
+    const sClass = stock === 0 ? 'out' : stock <= 5 ? 'low' : 'available';
+    const sText = stock === 0 ? 'Out of stock' : stock <= 5 ? `Only ${stock} left` : `${stock} in stock`;
+    return `<div class="product-card" onclick="openProduct(${p.id})"><div class="product-img">${p.title}</div><div class="product-body"><h3>${p.title}</h3><div class="vendor">${p.vendor}</div><div class="price">$${Math.min(...prices)}${Math.max(...prices) > Math.min(...prices) ? ' - $' + Math.max(...prices) : ''}</div><div class="stock ${sClass}">${sText}</div></div></div>`;
+  }).join('');
+}
+let currentProduct = null;
+function openProduct(id) {
+  currentProduct = allProducts.find(p => p.id === id);
+  if (!currentProduct) return;
+  document.getElementById('modal-title').textContent = currentProduct.title;
+  document.getElementById('modal-vendor').textContent = currentProduct.vendor;
+  document.getElementById('modal-desc').textContent = currentProduct.description;
+  document.getElementById('variant-select').innerHTML = currentProduct.variants.map(v => `<option value='${JSON.stringify(v)}'>${v.title} - $${v.price} (${v.stock > 0 ? v.stock+' in stock' : 'out'})</option>`).join('');
+  document.getElementById('order-confirm').className = 'order-confirm';
+  document.getElementById('order-confirm').textContent = '';
+  document.getElementById('product-modal').classList.add('open');
+}
+function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
+async function placeOrder() {
+  const v = JSON.parse(document.getElementById('variant-select').value);
+  const confirm = document.getElementById('order-confirm');
+  try {
+    const r = await fetch('/store/orders', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({customer_name: document.getElementById('customer-name').value||'Demo Customer', customer_email: document.getElementById('customer-email').value||'demo@example.com', product_id: currentProduct.id, variant_id: v.id, quantity: 1}) });
+    const d = await r.json();
+    if (r.ok) { confirm.textContent = `Order #${d.order.order_number} placed! Ask the agent about it.`; confirm.className = 'order-confirm show'; loadProducts(); loadOrders(); }
+    else { confirm.textContent = d.detail || 'Error'; confirm.className = 'order-confirm show'; }
+  } catch(e) { confirm.textContent = `Error: ${e.message}`; confirm.className = 'order-confirm show'; }
+}
+function showOrders() {
+  const list = document.getElementById('orders-list');
+  list.innerHTML = !allOrders.length ? '<div style="color:#888">No orders.</div>' : '<table style="width:100%;border-collapse:collapse"><tr style="background:#f5f5f5"><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">Order</th><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">Customer</th><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">Total</th><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">Status</th><th style="padding:8px;text-align:left;border-bottom:2px solid #ddd">Fulfillment</th></tr>' + allOrders.sort((a,b)=>b.order_number-a.order_number).map(o => `<tr><td style="padding:8px;border-bottom:1px solid #eee">#${o.order_number}</td><td style="padding:8px;border-bottom:1px solid #eee">${o.customer_name}</td><td style="padding:8px;border-bottom:1px solid #eee">$${o.total}</td><td style="padding:8px;border-bottom:1px solid #eee">${o.status}</td><td style="padding:8px;border-bottom:1px solid #eee">${o.fulfillment}</td></tr>`).join('') + '</table>';
+  document.getElementById('orders-modal').classList.add('open');
+}
+function closeOrders() { document.getElementById('orders-modal').classList.remove('open'); }
+function toggleChat() { const w = document.getElementById('chat-widget'); w.classList.toggle('open'); if (w.classList.contains('open')) document.getElementById('chat-input').focus(); }
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  const msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML += `<div class="msg user">${msg}</div>`;
+  msgs.innerHTML += `<div class="msg typing" id="typing">Thinking...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chat-send').disabled = true;
+  try {
+    const r = await fetch('/webhook/test', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({message: msg, customer_identifier: 'storefront-user'}) });
+    const d = await r.json();
+    document.getElementById('typing').remove();
+    msgs.innerHTML += `<div class="msg bot">${d.response || 'No response'}</div>`;
+  } catch(e) {
+    document.getElementById('typing').remove();
+    msgs.innerHTML += `<div class="msg bot">Error. Try again.</div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+  document.getElementById('chat-send').disabled = false;
+}
+loadProducts();
+loadOrders();
+</script>
+</body>
+</html>

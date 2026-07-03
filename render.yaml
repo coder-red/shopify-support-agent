@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: shopify-support-agent
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: "groq"
+      - key: LLM_MODEL
+        value: "llama-3.3-70b-versatile"
+      - key: CHANNEL
+        value: "webchat"
+      - key: STORE_NAME
+        value: "Demo Store"
+      - key: RETURN_WINDOW_DAYS
+        value: "30"
+      - key: INVENTORY_THRESHOLD
+        value: "5"

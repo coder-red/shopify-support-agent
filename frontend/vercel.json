@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://YOUR-RENDER-APP.onrender.com/api/$1"
+    },
+    {
+      "source": "/webhook/(.*)",
+      "destination": "https://YOUR-RENDER-APP.onrender.com/webhook/$1"
+    },
+    {
+      "source": "/store/(.*)",
+      "destination": "https://YOUR-RENDER-APP.onrender.com/store/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://YOUR-RENDER-APP.onrender.com/health"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
