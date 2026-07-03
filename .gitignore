@@ -8,3 +8,10 @@ dist/
 build/
 .DS_Store
 
+{
+  "mcpServers": {
+    "vercel": {
+      "url": "https://mcp.vercel.com"
+    }
+  }
+}
