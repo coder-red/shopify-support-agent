@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from app.api.routes import router
@@ -38,4 +40,17 @@ app.add_middleware(
 app.include_router(router)
 app.include_router(store_router)
 
-print("API only mode - frontend served separately")
+static_dir = Path("app/static")
+store_html = static_dir / "store.html"
+if store_html.is_file():
+    @app.get("/store.html")
+    async def storefront():
+        return FileResponse(str(store_html))
+
+    @app.get("/favicon.svg")
+    async def favicon():
+        return FileResponse(str(static_dir / "favicon.svg"))
+
+    print(f"Serving storefront from {store_html}")
+
+print("API only mode - frontend served separately on Vercel")
