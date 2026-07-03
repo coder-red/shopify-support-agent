@@ -3,19 +3,19 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://YOUR-RENDER-APP.onrender.com/api/$1"
+      "destination": "https://shopify-support-agent-trjx.onrender.com/api/$1"
     },
     {
       "source": "/webhook/(.*)",
-      "destination": "https://YOUR-RENDER-APP.onrender.com/webhook/$1"
+      "destination": "https://shopify-support-agent-trjx.onrender.com/webhook/$1"
     },
     {
       "source": "/store/(.*)",
-      "destination": "https://YOUR-RENDER-APP.onrender.com/store/$1"
+      "destination": "https://shopify-support-agent-trjx.onrender.com/store/$1"
     },
     {
       "source": "/health",
-      "destination": "https://YOUR-RENDER-APP.onrender.com/health"
+      "destination": "https://shopify-support-agent-trjx.onrender.com/health"
     },
     {
       "source": "/(.*)",
